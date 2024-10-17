@@ -80,11 +80,40 @@ class PillowStuff:
         return image
 
 class Audio:
+    class FileNotFound(BaseException): ...
+    class InexistantID(BaseException): ../
+
     def __init__(self) -> None:
-        self.dfs_a = fl.FluxFile(os.path.join(c.DISPLAY_FOLDER_PATH, "ports", "dfs-a.flx"))
+        self.dfs_a_path = os.path.join(c.DISPLAY_FOLDER_PATH, "ports", "dfs-a.flx")
+        self.dfs_a = fl.FluxFile(self.dfs_a_path)
     
     def GenerateSound(self, sound_path:str):
+        if not os.path.exists(sound_path):
+            raise self.FileNotFound(sound_path)
         content = self.dfs_a.try_get_content()
         keys = content["sectors"]["SOUNDS"]["cells"].keys()
         random_key = random.randint(100000000, 999999999)
-        # TODO: while loop
+        while random_key in keys:
+            random_key = random.randint(100000000, 999999999)
+        content["sectors"]["SOUNDS"]["cells"][random_key] = {
+            "type": "STRING",
+            "value": sound_path
+        }
+
+        self.dfs_a.write_file(self.dfs_a_path, self.dfs_a.format(content))
+
+    def PlayerCall(self, sound_id:int, action_id:int, additional_arg:int=0):
+        content = self.dfs_a.try_get_content()
+        keys = content["sectors"]["SOUNDS"]["cells"].keys()
+        action_id_min = 1
+        action_id_max = 6
+        if not sound_id in keys:
+            raise self.InexistantID(sound_id)
+        if max(min(action_id, action_id_min), action_id_max) != action_id:
+            raise self.InexistantID(action_id)
+        content["sectors"]["PLAYER"]["cells"][0]["value"] = {
+            "sector": "SOUNDS",
+            "address": sound_id
+        }
+        content["sectors"]["PLAYER"]["cells"][1]["value"] = action_id
+        content["sectors"]["PLAYER"]["cells"]

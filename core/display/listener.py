@@ -5,10 +5,12 @@ from PIL import Image
 import os
 import threading as th
 import time
+import audios as ad
 
 dfs_g_path = os.path.join(c.DISPLAY_FOLDER_PATH, "ports", "dfs-g.flx")
+dfs_a_path = os.path.join(c.DISPLAY_FOLDER_PATH, "ports", "dfs-a.flx")
 
-def listener_loop(show_frame_function):
+def listener_loop(show_frame_function, audio_handler:ad.AudioHandler):
     start_time = time.time()
     fps = 0
     frame = 0
@@ -32,8 +34,17 @@ def listener_loop(show_frame_function):
                     start_time = time.time()
                     fps = frame
                     frame = 0
+        
+        try:
+            dfs_a = fl.FluxFile(dfs_a_path)
+            content = dfs_a.translate(dfs_a.try_get_content())
+        except fl.FluxFile.TranslationException as e:
+            pass
+        else:
+            audio_handler.handle_sounds_sector(content["sectors"]["SOUNDS"])
+            audio_handler.handle_player_sector(content["sectors"]["PLAYER"])
 
-def listener_loop_thread(show_frame_function):
-    thread = th.Thread(target=listener_loop, args=(show_frame_function,))
+def listener_loop_thread(show_frame_function, audio_handler):
+    thread = th.Thread(target=listener_loop, args=(show_frame_function, audio_handler))
     thread.start()
     return thread

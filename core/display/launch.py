@@ -3,6 +3,7 @@ from window import *
 from canvas import *
 from ports import *
 from listener import *
+from audios import *
 
 class Main():
     def __init__(self, argv:list[str]) -> None:
@@ -19,7 +20,9 @@ class Main():
 
         self.display_canvas = self.display_window.canvas_instance
 
-        self.listener_loop_thread = listener_loop_thread(self.display_canvas.show_frame)
+        self.audio_handler = AudioHandler()
+
+        self.listener_loop_thread = listener_loop_thread(self.display_canvas.show_frame, self.audio_handler)
         
     def run(self):
         self.display_window.root_loop()

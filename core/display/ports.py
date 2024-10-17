@@ -42,8 +42,8 @@ def init_ports():
                         "value": 0
                     },
                     4: {
-                        "type": "INTEGER", # Result for Get volume (0 to 1) and Is playing (0 or 1)
-                        "value": 0
+                        "type": "EMPTY", # Result for Get volume (0 to 1) and Is playing (0 or 1)
+                        "value": None
                     }
                 }
             }
